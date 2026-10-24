@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Office Co-Pilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f3eff4;--panel:#fff;--ink:#241529;--mute:#76667c;--line:#e0d6e3;--gold:#f5b301;--goldsoft:#fff1c9;--teal:#1f8a4c;--tealsoft:#dff3e6;--red:#c8372d;--redsoft:#fde5e2;--navy:#2b1535;--navyink:#f3eff4;--ongold:#2b1535;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#160c1c;--panel:#22132b;--ink:#f1e9f4;--mute:#b2a2ba;--line:#3a2646;--goldsoft:#3a3012;--tealsoft:#123a22;--redsoft:#3f1d1f;--navy:#0d0612;--navyink:#f1e9f4}}
+:root[data-theme="dark"]{--bg:#160c1c;--panel:#22132b;--ink:#f1e9f4;--mute:#b2a2ba;--line:#3a2646;--goldsoft:#3a3012;--tealsoft:#123a22;--redsoft:#3f1d1f;--navy:#0d0612;--navyink:#f1e9f4}
+*{box-sizing:border-box}html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.5 'IBM Plex Sans',system-ui,sans-serif}
+h1,h2,h3,.d{font-family:'Bricolage Grotesque','IBM Plex Sans',sans-serif;margin:0;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr) 320px;min-height:100vh;gap:0}
+aside{background:var(--navy);color:var(--navyink);padding:22px 18px;display:flex;flex-direction:column;gap:20px}
+.brand{font-size:22px;font-weight:800}.brand small{display:block;font:400 12px 'IBM Plex Sans';opacity:.65;margin-top:2px}
+.agent{display:flex;gap:11px;align-items:center;padding:10px;border-radius:10px;border:1px solid #ffffff1f}
+.agent .dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 14px 'Bricolage Grotesque';color:var(--ongold);flex:none}
+.agent b{display:block;font-size:14px}.agent span{font-size:12px;opacity:.7}
+.agent.busy{border-color:var(--gold);box-shadow:0 0 0 3px #f5b30133}
+.agent.busy .dot{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.14)}}
+@media (prefers-reduced-motion:reduce){.agent.busy .dot{animation:none}}
+.run{background:var(--gold);color:var(--ongold);border:0;border-radius:10px;padding:12px;font:700 15px 'Bricolage Grotesque'}
+.run:disabled{opacity:.6;cursor:wait}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
+.stats div{background:#ffffff12;border-radius:8px;padding:8px 2px}.stats b{display:block;font:800 20px 'Bricolage Grotesque'}.stats span{font-size:11px;opacity:.7}
+.theme{margin-top:auto;background:none;border:1px solid #ffffff33;color:inherit;border-radius:8px;padding:7px;font-size:13px}
+main{padding:22px 26px;min-width:0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.tabs button{background:none;border:0;padding:10px 16px;font:700 16px 'Bricolage Grotesque';color:var(--mute);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);border-color:var(--gold)}
+.tabs i{font-style:normal;background:var(--gold);color:var(--ongold);border-radius:9px;padding:0 7px;margin-left:6px;font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.mail{display:grid;grid-template-columns:4px 1fr;gap:12px;padding:0;overflow:hidden}
+.mail .bar{background:var(--line)}.mail.high .bar{background:var(--red)}.mail.med .bar{background:var(--gold)}.mail.low .bar{background:var(--teal)}
+.mail .in{padding:13px 14px 13px 0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.from{font-weight:600}.sub{font:700 17px 'Bricolage Grotesque'}.body{color:var(--mute);margin:4px 0 0}
+.tag{font-size:12px;padding:2px 9px;border-radius:99px;background:var(--line);color:var(--ink)}
+.tag.high{background:var(--redsoft);color:var(--red)}.tag.med{background:var(--goldsoft)}.tag.ok{background:var(--tealsoft);color:var(--teal)}
+.draft{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+textarea,input[type=text],input[type=date],select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{min-height:92px;resize:vertical}
+.btn{background:var(--navy);color:var(--navyink);border:0;border-radius:8px;padding:7px 14px;font-weight:600}
+.btn.alt{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn.teal{background:var(--teal);color:#fff}
+.empty{color:var(--mute);text-align:center;padding:36px 10px}
+.grid{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;font-size:12px;min-width:480px}
+.grid th{font-weight:600;color:var(--mute);padding:4px}.grid td{height:34px;border-radius:6px;text-align:center;font-size:11px}
+.grid td.f{background:var(--tealsoft);color:var(--teal);font-weight:600}.grid td.p{background:var(--goldsoft)}
+.grid td.b{background:var(--line);color:var(--mute)}
+.grid td.ev{background:var(--gold);color:var(--ongold);font-weight:700}.grid td.pr{outline:2px dashed var(--gold);outline-offset:-2px;background:var(--goldsoft);font-weight:700}
+.scroll{overflow-x:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.chips label{border:1px solid var(--line);border-radius:99px;padding:3px 12px;cursor:pointer;background:var(--panel);user-select:none}
+.chips input{position:absolute;opacity:0}.chips label:has(input:checked){background:var(--navy);color:var(--navyink);border-color:var(--navy)}
+.chips label:has(input:focus-visible){outline:2px solid var(--gold)}
+.task{display:flex;gap:12px;align-items:center}.task input{width:18px;height:18px;accent-color:var(--teal);flex:none}
+.task.done .t{text-decoration:line-through;color:var(--mute)}.t{flex:1}.t small{display:block;color:var(--mute)}
+.add{display:grid;grid-template-columns:1fr 150px auto;gap:8px;margin-bottom:12px}
+.log{background:var(--panel);border-left:1px solid var(--line);padding:22px 18px;min-width:0}
+.log h2{font-size:18px;margin-bottom:12px}
+.ent{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ent .dot{width:12px;height:12px;border-radius:50%;margin-top:5px}.ent time{color:var(--mute);font-size:11px}
+.h2row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.h2row h2{font-size:20px}
+@media (max-width:1050px){.app{grid-template-columns:1fr}aside{flex-direction:row;flex-wrap:wrap;align-items:stretch}aside>*{flex:1 1 200px}.theme{margin-top:0}.log{border-left:0;border-top:1px solid var(--line)}main{padding:18px 14px}.add{grid-template-columns:1fr}}
+.card h3{font-size:16px;margin-bottom:8px}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.kpi b{display:block;font:800 30px 'Bricolage Grotesque';color:var(--teal)}.kpi span{color:var(--mute);font-size:13px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.timer{font:800 48px 'Bricolage Grotesque';margin:2px 0 8px}.mini{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.toolbar input{flex:1 1 180px;width:auto}.toolbar select{width:auto}.x{background:none;border:0;font-size:16px;line-height:1;padding:0 2px;color:var(--mute)}.add.m4{grid-template-columns:1fr 90px 100px auto}@media (max-width:1050px){.kpis{grid-template-columns:1fr 1fr}.two,.add.m4{grid-template-columns:1fr}}</style></head><body>
+<div class="app">
+<aside>
+ <div class="brand d">Office Co-Pilot<small>Your digital office team</small></div>
+ <div id="agents"></div>
+ <button class="run" id="run">Run the swarm</button><button class="theme" id="newmail" style="margin-top:0">+ Simulate new email</button>
+ <div class="stats"><div><b id="s1">0</b><span>triaged</span></div><div><b id="s2">0</b><span>meetings</span></div><div><b id="s3">0</b><span>open tasks</span></div></div>
+ <button class="theme" id="theme">Switch light / dark</button>
+</aside>
+<main>
+ <div class="tabs" role="tablist" id="tabs"></div>
+ <div id="view"></div>
+</main>
+<section class="log"><h2>Swarm activity</h2><div id="log"><p class="empty">Nothing yet. Run the swarm and watch the agents hand work to each other.</p></div></section>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DAYS=['Mon','Tue','Wed','Thu','Fri'],HRS=[9,10,11,12,13,14,15,16];
+const dayDate=i=>{const d=new Date();d.setDate(d.getDate()+((8-d.getDay())%7||7)+i);return d};
+const fmtD=d=>d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+const hh=h=>(h>12?h-12:h)+(h>=12?' pm':' am');
+const BUSY={Me:[[9,10],[11],[9,14],[10,11],[15]],Aarav:[[9,10,11],[10,11,12],[9],[13,14],[9,10]],Meera:[[12,13],[9,10],[10,11,12],[9,10,11],[11,12]],Kabir:[[9,10,11,12],[14,15],[11,12],[9,10],[9,10,11,12,13]]};
+const PEOPLE=Object.keys(BUSY);
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const A={email:{n:'Email Agent',c:'#f5b301',i:'E',d:'Watching the inbox'},cal:{n:'Calendar Agent',c:'#18c2a9',i:'C',d:'Syncing calendars'},task:{n:'Task Agent',c:'#ff8fb1',i:'T',d:'Tracking deadlines'}};
+let S={tab:'today',q:'',f:'all',tf:'open',vips:['Prof. Sharma','HackIndia Team'],kw:['deadline','urgent','fee','submission'],auto:false,busyAgent:null,running:false,sel:['Me','Aarav','Meera'],best:null,
+emails:[
+{id:1,from:'Prof. Sharma',sub:'Project review: can we meet this week?',body:'Aarav, Meera and you should present progress. Please find a slot that works for everyone.',kind:'meet',who:['Aarav','Meera'],ev:'Project review'},
+{id:2,from:'HackIndia Team',sub:'Final submission closes in 3 days',body:'Upload your PPT, demo video and GitHub link before the portal closes.',kind:'due',task:'Submit PPT, video and repo to HackIndia',days:3,pri:'high'},
+{id:3,from:'Kabir',sub:'Quick sync on the demo flow',body:'Can we get 1 hour together to walk through the demo before we record?',kind:'meet',who:['Kabir'],ev:'Demo walkthrough'},
+{id:4,from:'Riya Sahani',sub:'Need the final slides by Wednesday',body:'Please share the final architecture slide so I can merge it into the deck.',kind:'due',task:'Send architecture slide to Riya',days:4,pri:'med'},
+{id:5,from:'ShopNow Deals',sub:'Flash sale: 60% off headphones',body:'Limited time offer. Click to see this week’s deals.',kind:'promo'},
+{id:6,from:'Accounts Office',sub:'Hostel fee reminder',body:'The pending fee must be paid by next Friday to avoid a late charge.',kind:'due',task:'Pay hostel fee',days:7,pri:'med'}],
+tasks:[{id:1,t:'Write README for the repo',due:addDays(2),pri:'med',done:false,src:'You'}],
+events:[],log:[]};
+const fin=e=>e.status&&e.status!=='new';
+function tone(e,t){const n=e.from.split(' ')[0];
+ const act=e.kind==='meet'?'I’ll send an invite for the slot below. Please confirm if it works.':'I’ve noted the deadline and will get this done on time.';
+ if(t==='brief')return `Hi ${n}, thanks. ${act}`;
+ if(t==='friendly')return `Hey ${n}!\n\nThanks for the message. ${act}\n\nCheers,\nLakshya`;
+ return `Dear ${n},\n\nThank you for your email regarding “${e.sub}”. ${act}\n\nBest regards,\nLakshya Srivastava`}
+function log(a,msg){S.log.unshift({a,msg,t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})});renderLog()}
+function setBusy(a){S.busyAgent=a;renderAgents()}
+function renderAgents(){$('#agents').innerHTML=Object.entries(A).map(([k,a])=>`<div class="agent ${S.busyAgent===k?'busy':''}" style="margin-bottom:8px"><div class="dot" style="background:${a.c}">${a.i}</div><div><b>${a.n}</b><span>${S.busyAgent===k?'Working…':a.d}</span></div></div>`).join('')}
+function renderLog(){$('#log').innerHTML=S.log.length?S.log.map(l=>`<div class="ent"><div class="dot" style="background:${l.a==='sys'?'#999':A[l.a].c}"></div><div>${esc(l.msg)}<br><time>${l.t} · ${l.a==='sys'?'Orchestrator':A[l.a].n}</time></div></div>`).join(''):'<p class="empty">Nothing yet. Run the swarm and watch the agents hand work to each other.</p>'}
+function stats(){$('#s1').textContent=S.emails.filter(fin).length;$('#s2').textContent=S.events.length;$('#s3').textContent=S.tasks.filter(t=>!t.done).length}
+function tabs(){const c={inbox:S.emails.filter(e=>!fin(e)).length,schedule:S.events.filter(e=>e.status==='proposed').length,tasks:S.tasks.filter(t=>!t.done).length};
+ $('#tabs').innerHTML=[['today','Today'],['inbox','Inbox'],['schedule','Schedule'],['tasks','Tasks'],['rules','Rules']].map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-t="${k}">${l}${c[k]?`<i>${c[k]}</i>`:''}</button>`).join('')}
+function busyAt(p,d,h){return BUSY[p][d].includes(h)}
+function findSlot(people,skip){const ev=S.events.filter(e=>e.status!=='dismissed');
+ for(let d=0;d<5;d++)for(const h of HRS){if(people.every(p=>!busyAt(p,d,h))&&!ev.some(e=>e.d===d&&e.h===h)&&!(skip&&skip.d===d&&skip.h===h))return{d,h}}return null}
+function renderInbox(){
+ const list=[...S.emails].filter(inboxFilter).sort((a,b)=>({high:0,med:1,low:2,undefined:3}[a.pri]-({high:0,med:1,low:2,undefined:3}[b.pri])));
+ return toolbar()+(list.length?'':'<p class="empty">No emails match.</p>')+list.map(e=>`<div class="card mail ${e.pri||''}"><div class="bar"></div><div class="in"><div class="row"><span class="from">${esc(e.from)}</span><span>${e.pri?`<span class="tag ${e.pri==='high'?'high':e.pri==='med'?'med':''}">${{high:'Needs action',med:'Soon',low:'Low priority'}[e.pri]}</span> `:''}${e.status==='sent'?'<span class="tag ok">Reply sent</span>':''}${e.status==='archived'?'<span class="tag ok">Archived</span>':''}</span></div>
+ <div class="sub">${esc(e.sub)}</div><p class="body">${esc(e.body)}</p>
+ ${e.status==='triaged'?`<div class="draft"><div class="row" style="margin-bottom:6px"><b>Draft reply</b><select data-tone="${e.id}" style="width:auto"><option value="formal"${e.tone==='formal'?' selected':''}>Formal</option><option value="friendly"${e.tone==='friendly'?' selected':''}>Friendly</option><option value="brief"${e.tone==='brief'?' selected':''}>Brief</option></select></div><textarea data-d="${e.id}" aria-label="Draft reply to ${esc(e.from)}">${esc(e.draft)}</textarea><div style="margin-top:8px;display:flex;gap:8px"><button class="btn teal" data-send="${e.id}">Send reply</button><button class="btn alt" data-arch="${e.id}">Archive</button><button class="btn alt" data-mk="${e.id}">Add as task</button></div></div>`:''}</div></div>`).join('')}
+function renderSchedule(){
+ const sel=S.sel,cells=[];
+ let h='<div class="h2row"><h2>Find a time that works for everyone</h2></div><div class="chips">'+PEOPLE.map(p=>`<label><input type="checkbox" data-p="${p}" ${sel.includes(p)?'checked':''}${p==='Me'?' disabled':''}>${p}</label>`).join('')+'</div>';
+ h+='<div class="scroll"><table class="grid"><tr><th></th>'+DAYS.map((d,i)=>`<th>${d}<br>${dayDate(i).getDate()}</th>`).join('')+'</tr>';
+ for(const hr of HRS){h+=`<tr><th>${hh(hr)}</th>`;for(let d=0;d<5;d++){
+  const ev=S.events.find(e=>e.status!=='dismissed'&&e.d===d&&e.h===hr);
+  if(ev){h+=`<td class="${ev.status==='proposed'?'pr':'ev'}" title="${esc(ev.title)}">${esc(ev.title.slice(0,9))}</td>`;continue}
+  const n=sel.filter(p=>busyAt(p,d,hr)).length;const best=S.best&&S.best.d===d&&S.best.h===hr;
+  h+=`<td class="${best?'p':n===0?'f':'b'}">${best?'Best':n===0?'Free':n+' busy'}</td>`}h+='</tr>'}
+ h+='</table></div><div style="margin:10px 0 18px"><button class="btn" id="find">Find best slot</button> <span id="bestmsg" style="color:var(--mute);margin-left:8px">'+(S.best?`Best common slot: ${fmtD(dayDate(S.best.d))}, ${hh(S.best.h)}`:'Green cells are free for every selected person.')+'</span></div>';
+ h+='<h2 style="font-size:18px;margin-bottom:8px">Meetings</h2>';
+ const evs=S.events.filter(e=>e.status!=='dismissed');
+ h+=evs.length?evs.map((e,i)=>`<div class="card row"><div><b>${esc(e.title)}</b><br><span style="color:var(--mute)">${fmtD(dayDate(e.d))}, ${hh(e.h)} to ${hh(e.h+1)} with ${esc(e.people.join(', '))}</span></div>${e.status==='proposed'?`<div><button class="btn teal" data-inv="${S.events.indexOf(e)}">Send invite</button> <button class="btn alt" data-alt="${S.events.indexOf(e)}">Next slot</button></div>`:`<div><span class="tag ok">Invite sent</span> <button class="btn alt" data-cx="${S.events.indexOf(e)}">Cancel</button></div>`}</div>`).join(''):'<p class="empty">No meetings yet. Run the swarm to turn meeting requests into proposed slots.</p>';
+ h+=`<h2 style="font-size:18px;margin:20px 0 8px">Add a meeting</h2><div class="add m4"><input type="text" id="mt" placeholder="Meeting title" aria-label="Meeting title"><select id="md" aria-label="Day">${DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join('')}</select><select id="mh" aria-label="Hour">${HRS.map(x=>`<option value="${x}">${hh(x)}</option>`).join('')}</select><button class="btn" id="addm">Add meeting</button></div><p class="body" style="margin-bottom:6px">Uses the people ticked above and checks for clashes.</p>`;
+ h+=`<h2 style="font-size:18px;margin:20px 0 8px">Meeting notes to action items</h2><textarea id="notes" aria-label="Meeting notes" placeholder="Paste notes. Lines like “Dev will fix the login bug by Friday” become tasks."></textarea><div style="margin-top:8px"><button class="btn" id="extract">Extract action items</button></div>`;
+ return h}
+function renderTasks(){
+ const ts=[...S.tasks].filter(x=>S.tf==='all'||(S.tf==='open'?!x.done:x.done)).sort((a,b)=>a.done-b.done||a.due.localeCompare(b.due));const today=addDays(0);
+ return `<div class="toolbar"><select id="tf" aria-label="Filter tasks"><option value="open"${S.tf==='open'?' selected':''}>Open</option><option value="done"${S.tf==='done'?' selected':''}>Done</option><option value="all"${S.tf==='all'?' selected':''}>All</option></select><button class="btn alt" id="copyt">Copy task list</button><button class="btn alt" id="cleart">Clear completed</button></div><div class="add"><input type="text" id="nt" placeholder="Add a task" aria-label="Task title"><input type="date" id="nd" value="${addDays(2)}" aria-label="Due date"><button class="btn" id="addt">Add task</button></div>`+
+ (ts.length?ts.map(t=>{const od=!t.done&&t.due<today,td=t.due===today;return `<div class="card task ${t.done?'done':''}"><input type="checkbox" data-tk="${t.id}" ${t.done?'checked':''} aria-label="Mark done"><div class="t">${esc(t.title||t.t)}<small>${esc(t.src)}</small></div><span class="tag ${od?'high':td||t.pri==='high'?'med':''}">${od?'Overdue · ':td?'Today · ':''}${fmtD(new Date(t.due+'T00:00'))}</span><select data-pr="${t.id}" aria-label="Priority" style="width:auto"><option value="high"${t.pri==='high'?' selected':''}>High</option><option value="med"${t.pri!=='high'&&t.pri!=='low'?' selected':''}>Medium</option><option value="low"${t.pri==='low'?' selected':''}>Low</option></select><button class="btn alt" data-del="${t.id}">Delete</button></div>`}).join(''):'<p class="empty">All clear. Add a task or run the swarm.</p>')}
+function render(){save();tabs();stats();$('#view').innerHTML=({today:renderToday,inbox:renderInbox,schedule:renderSchedule,tasks:renderTasks,rules:renderRules})[S.tab]()}
+function sched(e){const people=['Me',...e.who];const s=findSlot(people);
+ if(!s){log('cal','No common slot for '+people.join(', ')+' this week.');return}
+ S.events.push({title:e.ev,d:s.d,h:s.h,people:e.who,status:'proposed',need:people});
+ log('cal',`Checked ${people.join(', ')}: ${fmtD(dayDate(s.d))} at ${hh(s.h)} is free for all. Invite is ready.`)}
+async function runSwarm(){
+ if(S.running)return;S.running=true;$('#run').disabled=true;S.log=[];
+ log('sys','Swarm started. Reading '+S.emails.filter(e=>!fin(e)).length+' new emails.');
+ for(const e of S.emails.filter(e=>!fin(e))){
+  setBusy('email');await sleep(650);
+  if(e.kind==='promo'){e.pri='low';e.status='archived';log('email',`Filtered “${e.sub}” as promotion and archived it.`)}
+  else{const hit=S.vips.includes(e.from)||S.kw.some(k=>(e.sub+' '+e.body).toLowerCase().includes(k));e.pri=(e.kind==='meet'||hit)?'high':e.pri;e.status='triaged';e.tone='formal';e.draft=tone(e,'formal');if(hit)log('email',`Rule matched for “${e.sub}”: raised to high priority.`);if(S.auto){e.status='sent';log('email',`Auto-sent reply to ${e.from}.`)}
+   log('email',`Marked “${e.sub}” as ${e.kind==='meet'?'a meeting request':'a deadline'}. Draft reply ready.`)}
+  render();
+  if(e.kind==='meet'){log('sys',`Handing “${e.sub}” to the Calendar Agent.`);setBusy('cal');await sleep(750);sched(e);render()}
+  if(e.kind==='due'){log('sys',`Handing deadline from ${e.from} to the Task Agent.`);setBusy('task');await sleep(650);
+   S.tasks.push({id:Date.now()+e.id,t:e.task,due:addDays(e.days),pri:e.pri,done:false,src:'From '+e.from});
+   log('task',`Added “${e.task}”, due ${fmtD(new Date(addDays(e.days)+'T00:00'))}.`);render()}}
+ setBusy('task');await sleep(600);log('task','Sorted all tasks by deadline. Nothing is overdue.');
+ setBusy(null);log('sys','Swarm finished. Review drafts and invites, then send.');S.running=false;$('#run').disabled=false;render()}
+document.addEventListener('click',e=>{const t=e.target;more(t);
+ if(t.dataset.t){S.tab=t.dataset.t;render()}
+ if(t.id==='run')runSwarm();
+ if(t.dataset.send){const m=S.emails.find(x=>x.id==t.dataset.send);m.status='sent';log('email',`Sent reply to ${m.from}.`);render()}
+ if(t.dataset.arch){const m=S.emails.find(x=>x.id==t.dataset.arch);m.status='archived';log('email',`Archived “${m.sub}”.`);render()}
+ if(t.dataset.inv){const v=S.events[t.dataset.inv];v.status='sent';log('cal',`Invite for “${v.title}” sent to ${v.people.join(', ')}.`);render()}
+ if(t.dataset.alt){const v=S.events[t.dataset.alt];const old={d:v.d,h:v.h};v.status='dismissed';const s=findSlot(v.need,old);v.status='proposed';if(s){v.d=s.d;v.h=s.h;log('cal',`Moved “${v.title}” to ${fmtD(dayDate(s.d))} at ${hh(s.h)}.`)}else log('cal','No other common slot this week.');render()}
+ if(t.id==='find'){S.best=findSlot(S.sel);log('cal',S.best?`Best slot for ${S.sel.join(', ')}: ${fmtD(dayDate(S.best.d))} at ${hh(S.best.h)}.`:'No common slot this week.');render()}
+ if(t.id==='extract'){const lines=$('#notes').value.split('\n').filter(l=>/\b(will|by|needs? to|action)\b/i.test(l));
+  if(!lines.length){log('task','No action items found. Try lines with “will”, “by” or “needs to”.');return}
+  lines.forEach((l,i)=>S.tasks.push({id:Date.now()+i,t:l.trim(),due:addDays(3),pri:'med',done:false,src:'From meeting notes'}));
+  log('task',`Created ${lines.length} task${lines.length>1?'s':''} from meeting notes.`);S.tab='tasks';render()}
+ if(t.id==='addt'){const v=$('#nt').value.trim();if(!v){$('#nt').focus();return}S.tasks.push({id:Date.now(),t:v,due:$('#nd').value||addDays(2),pri:'med',done:false,src:'You'});log('task',`Added “${v}”.`);render()}
+ if(t.id==='theme'){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark'}});
+document.addEventListener('change',e=>{const t=e.target;more2(t);
+ if(t.dataset.p){S.sel=PEOPLE.filter(p=>p==='Me'||(p===t.dataset.p?t.checked:S.sel.includes(p)));S.best=null;render()}
+ if(t.dataset.tk){const k=S.tasks.find(x=>x.id==t.dataset.tk);k.done=t.checked;if(k.done)log('task',`Completed “${k.t}”.`);render()}
+ if(t.dataset.tone){const m=S.emails.find(x=>x.id==t.dataset.tone);m.tone=t.value;m.draft=tone(m,t.value);render()}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;render();const q=$('#q');q.focus();q.setSelectionRange(99,99)}if(e.target.dataset.d)S.emails.find(x=>x.id==e.target.dataset.d).draft=e.target.value});
+S.tasks.forEach(t=>t.title=t.t);
+S.tm={left:1500,on:false};let tmI=null;
+try{const d=JSON.parse(localStorage.getItem('ocp')||'null');if(d){S.emails=d.e;S.tasks=d.t;S.events=d.v;S.log=d.l||[];S.vips=d.vips||S.vips;S.kw=d.kw||S.kw;S.auto=!!d.auto}}catch(x){}
+function save(){try{localStorage.setItem('ocp',JSON.stringify({e:S.emails,t:S.tasks,v:S.events,l:S.log.slice(0,60),vips:S.vips,kw:S.kw,auto:S.auto}))}catch(x){}}
+function toolbar(){return `<div class="toolbar"><input type="text" id="q" value="${esc(S.q)}" placeholder="Search emails" aria-label="Search emails"><select id="f" aria-label="Filter emails">${[['all','All'],['action','Needs action'],['meet','Meetings'],['due','Deadlines'],['done','Handled']].map(([v,l])=>`<option value="${v}"${S.f===v?' selected':''}>${l}</option>`).join('')}</select></div>`}
+function inboxFilter(e){const q=S.q.toLowerCase();if(q&&!(e.from+e.sub+e.body).toLowerCase().includes(q))return false;const f=S.f,h=e.status==='sent'||e.status==='archived';return f==='all'||(f==='action'&&e.pri==='high'&&!h)||(f==='meet'&&e.kind==='meet')||(f==='due'&&e.kind==='due')||(f==='done'&&h)}
+function tmTxt(){const s=S.tm.left;return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function digestText(){const o=S.tasks.filter(t=>!t.done).sort((a,b)=>a.due.localeCompare(b.due));return 'Daily digest\n'+S.emails.filter(e=>e.status==='triaged').length+' replies to review, '+S.events.filter(e=>e.status==='proposed').length+' invites to send.\nOpen tasks:\n'+(o.map(t=>'- '+(t.title||t.t)+' (due '+t.due+')').join('\n')||'- none')}
+async function copy(txt,ok){try{await navigator.clipboard.writeText(txt);log('sys',ok)}catch(x){log('sys','Copy is blocked in this view. Select the text from the Tasks tab instead.')}}
+function renderToday(){const open=S.tasks.filter(t=>!t.done).sort((a,b)=>a.due.localeCompare(b.due));const hr=new Date().getHours(),g=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';const kp=(n,l)=>`<div class="kpi"><b>${n}</b><span>${l}</span></div>`;const sent=S.events.filter(e=>e.status==='sent');
+ return `<div class="h2row"><h2>${g}, Lakshya</h2><button class="btn alt" id="digest">Copy daily digest</button></div><div class="kpis">${kp(S.emails.filter(e=>e.status==='triaged').length,'replies to review')}${kp(S.events.filter(e=>e.status==='proposed').length,'invites to send')}${kp(open.filter(t=>t.due<=addDays(3)).length,'tasks due in 3 days')}${kp(S.tasks.filter(t=>t.done).length,'tasks done')}</div><div class="two"><div class="card"><h3>Next up</h3>${open.slice(0,4).map(t=>`<div class="mini"><span>${esc(t.title||t.t)}</span><span class="tag">${fmtD(new Date(t.due+'T00:00'))}</span></div>`).join('')||'<p class="empty">Nothing due.</p>'}</div><div class="card"><h3>Focus timer</h3><div class="timer" id="tm">${tmTxt()}</div><button class="btn" id="tmgo">${S.tm.on?'Pause':'Start focus'}</button> <button class="btn alt" id="tmr">Reset</button></div></div><div class="card"><h3>Confirmed meetings</h3>${sent.map(v=>`<div class="mini"><span>${esc(v.title)}</span><span class="tag ok">${fmtD(dayDate(v.d))}, ${hh(v.h)}</span></div>`).join('')||'<p class="empty">None yet. Run the swarm, then send the proposed invites.</p>'}</div>`}
+function renderRules(){const ch=(a,k)=>a.map((x,i)=>`<span class="tag" style="padding:4px 10px">${esc(x)} <button class="x" data-r${k}="${i}" aria-label="Remove ${esc(x)}">×</button></span>`).join(' ')||'<span class="body">None</span>';
+ return `<div class="card"><h3>VIP senders</h3><p class="body">Emails from these senders are always high priority.</p><div class="chips">${ch(S.vips,'v')}</div><div class="add" style="grid-template-columns:1fr auto"><input type="text" id="vin" placeholder="Sender name" aria-label="VIP sender"><button class="btn" id="addv">Add sender</button></div></div><div class="card"><h3>Priority keywords</h3><p class="body">Any email containing these words is raised to high priority.</p><div class="chips">${ch(S.kw,'k')}</div><div class="add" style="grid-template-columns:1fr auto"><input type="text" id="kin" placeholder="Keyword" aria-label="Keyword"><button class="btn" id="addk">Add keyword</button></div></div><div class="card"><h3>Auto-send</h3><label class="row" style="justify-content:flex-start"><input type="checkbox" id="auto" ${S.auto?'checked':''}> Send drafted replies without review</label></div><div class="card"><h3>Demo data</h3><button class="btn alt" id="resetdemo">Reset demo data</button></div>`}
+const POOL=[{from:'Dev Sharma',sub:'Can we sync on the API this week?',body:'Need an hour to finalise the FastAPI endpoints.',kind:'meet',who:['Kabir','Aarav'],ev:'API sync'},{from:'Hackathon Mentor',sub:'Feedback form due tomorrow',body:'Please fill in the mentor feedback form by tomorrow.',kind:'due',task:'Fill mentor feedback form',days:1,pri:'med'},{from:'Meera',sub:'Urgent: demo video needs captions',body:'Please review the captions before we upload.',kind:'due',task:'Review demo video captions',days:2,pri:'med'}];
+function more(t){const d=t.dataset,id=t.id;
+ if(d.mk){const m=S.emails.find(x=>x.id==d.mk);S.tasks.push({id:Date.now(),t:'Follow up: '+m.sub,due:addDays(2),pri:m.pri||'med',done:false,src:'From '+m.from});log('task',`Added follow-up task for “${m.sub}”.`);render()}
+ if(id==='addm'){const title=$('#mt').value.trim();if(!title){$('#mt').focus();return}const dd=+$('#md').value,h=+$('#mh').value,bz=S.sel.filter(p=>busyAt(p,dd,h));if(bz.length||S.events.some(v=>v.status!=='dismissed'&&v.d===dd&&v.h===h)){log('cal',`Can’t book “${title}” on ${DAYS[dd]} at ${hh(h)}: ${bz.length?bz.join(', ')+' busy':'a meeting is already there'}.`);return}S.events.push({title,d:dd,h,people:S.sel.filter(p=>p!=='Me'),status:'proposed',need:[...S.sel]});log('cal',`Proposed “${title}” on ${DAYS[dd]} at ${hh(h)}. No clashes.`);render()}
+ if(d.cx){const v=S.events[d.cx];v.status='dismissed';log('cal',`Cancelled “${v.title}”.`);render()}
+ if(id==='copyt')copy(S.tasks.filter(x=>!x.done).map(x=>'- '+(x.title||x.t)+' (due '+x.due+')').join('\n'),'Copied open tasks.');
+ if(id==='digest')copy(digestText(),'Copied daily digest.');
+ if(id==='cleart'){S.tasks=S.tasks.filter(x=>!x.done);log('task','Cleared completed tasks.');render()}
+ if(d.del){S.tasks=S.tasks.filter(x=>x.id!=d.del);render()}
+ if(id==='addv'||id==='addk'){const el=$(id==='addv'?'#vin':'#kin'),v=el.value.trim();if(!v){el.focus();return}(id==='addv'?S.vips:S.kw).push(id==='addv'?v:v.toLowerCase());render()}
+ if(d.rv!==undefined){S.vips.splice(+d.rv,1);render()}
+ if(d.rk!==undefined){S.kw.splice(+d.rk,1);render()}
+ if(id==='resetdemo'){try{localStorage.removeItem('ocp')}catch(x){}location.reload()}
+ if(id==='newmail'){const m={...POOL[(S.nm=(S.nm||0))%POOL.length],id:Date.now()};S.nm++;S.emails.push(m);S.tab='inbox';log('email',`New email from ${m.from}: “${m.sub}”. Run the swarm to process it.`);render()}
+ if(id==='tmgo'){if(S.tm.on){clearInterval(tmI);S.tm.on=false}else{S.tm.on=true;tmI=setInterval(()=>{S.tm.left--;const el=$('#tm');if(el)el.textContent=tmTxt();if(S.tm.left<=0){clearInterval(tmI);S.tm={left:1500,on:false};log('task','Focus session finished. Take a 5-minute break.');render()}},1000)}render()}
+ if(id==='tmr'){clearInterval(tmI);S.tm={left:1500,on:false};render()}}
+function more2(t){if(t.id==='f'){S.f=t.value;render()}if(t.id==='tf'){S.tf=t.value;render()}if(t.id==='auto'){S.auto=t.checked;log('sys',S.auto?'Auto-send turned on.':'Auto-send turned off.');render()}if(t.dataset.pr){S.tasks.find(x=>x.id==t.dataset.pr).pri=t.value;render()}}
+renderAgents();renderLog();render();
+</script></body></html>
